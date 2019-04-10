@@ -1,6 +1,6 @@
 const path = require('path');
-const mime = require('mime');
-const fs = require('mz/fs');
+const mime = require('_mime@2.4.2@mime');
+const fs = require('_mz@2.7.0@mz/fs');
 
 // url: 类似 '/static/'
 // dir: 类似 __dirname + '/static'

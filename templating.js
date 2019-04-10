@@ -1,4 +1,4 @@
-const nunjucks = require('nunjucks'); // 导入模版引擎中间件
+const nunjucks = require('_nunjucks@3.2.0@nunjucks'); // 导入模版引擎中间件
 
 /**
  * 模版引擎操作。
