@@ -1,4 +1,5 @@
 let { home } = require('./home');
+let { login } = require('./login');
 
 async function about (ctx, next) {
     ctx.response.body = '<h1>Hello, welcome to about.</h1>';
@@ -18,7 +19,7 @@ async function signIn (ctx, next) {
     await next();
 }
 
-async function login (ctx, next) {
+/* async function login (ctx, next) {
     ctx.response.body = `<h1>Index</h1>
         <form action="/signin" method="post">
             <p>Name: <input name="name" type="text"></p>
@@ -27,11 +28,11 @@ async function login (ctx, next) {
         </form>`;
     console.log(`Process ${ ctx.request.method } ${ ctx.request.url }`);
     await next();
-}
+} */
 
 module.exports = {
     'GET /about': about,
-    'GET /login': login,
     'POST /signin': signIn,
-    ...home
+    ...home,
+    ...login
 };

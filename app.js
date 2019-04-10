@@ -19,20 +19,14 @@ if (!isProduction) {
 
 // 记录URL日志
 app.use(async (ctx, next) => {
-    // 设置Content-Type:
-    ctx.response.type = 'application/json';
-    // 设置Response Body:
-    ctx.response.body = {
-        products: 'bob'
-    };
-    /* ctx.response.body = '<h2>fefjeife</h2>';
+    // ctx.response.body = '<h2>fefjeife</h2>';
     await next();
     console.log(`Process ${ ctx.request.method } ${ ctx.request.url }`);
     var
         start = new Date().getTime(),
         execTime;
     execTime = new Date().getTime() - start;
-    ctx.response.set('X-Response-Time', `${execTime}ms`); */
+    ctx.response.set('X-Response-Time', `${execTime}ms`);
 });
 
 app.use(templating('views', {
