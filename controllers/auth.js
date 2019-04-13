@@ -215,7 +215,7 @@ async function perfectInfo (ctx, next) {
         // 编写注册插入语句
         switch (postData.type) {
             case '1': result = await Student.update({
-                stu_name: postData.stu_name,
+                stu_name: postData.name,
                 num: postData.num,
                 sex: postData.sex,
                 college: postData.college,
@@ -230,7 +230,7 @@ async function perfectInfo (ctx, next) {
                 isFinish: 2
             }, {
                 where: {
-                    stu_id: postData.stu_id
+                    stu_id: postData.id
                 }
             }); break;
             case '2': result = await Teacher.update({
@@ -286,6 +286,8 @@ async function perfectInfo (ctx, next) {
             }); break;
             default: break;
         }
+
+        console.log('result', result);
         
         if (result) {
             console.log('已经完善成功。');
