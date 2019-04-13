@@ -1,5 +1,5 @@
 let { home } = require('./home');
-let { login } = require('./login');
+let { auth } = require('./auth');
 
 async function about (ctx, next) {
     ctx.response.body = '<h1>Hello, welcome to about.</h1>';
@@ -34,5 +34,5 @@ module.exports = {
     'GET /about': about,
     'POST /signin': signIn,
     ...home,
-    ...login
+    ...auth
 };

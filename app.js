@@ -9,7 +9,7 @@ const { Student } = require('./config/tableModal/user');        // 导入用户�
 const cors = require('koa-cors')            // 解决跨域问题
 
 const app = new Koa(); // 创建一个Koa对象表示web app本身
-app.use(bodyParser()); // 解析POST请求
+// app.use(bodyParser()); // 解析POST请求
 app.use(cors());
 
 // 处理静态文件
@@ -34,43 +34,6 @@ app.use(templating('views', {
     watch: !isProduction
 }));                        // 给app添加render函数
 app.use(controller());      // 添加路由中间件
-
-// 数据库插入操作
-/* (async () => {
-    let stu = await Student.create({
-        stu_name: 'Bob',
-        num: '201517030234',
-        sex: '男',
-        age: 21,
-        college: '湖南文理学院',
-        department: '计算机与电气工程学院',
-        major: '网络工程',
-        class: '2',
-        grade: '15',
-        phone: '18711787678',
-        qq: '1069792236',
-        type: 1,
-        isFinish: 0
-    });
-})(); */
-
-(async () => {
-    Student.findAll({
-        where: {
-            phone: '666',
-            password: '666'
-        }
-    }).then((data) => {
-        if (data[0]) {
-            console.log('返回结果：', data[0].dataValues);
-        } else {
-            console.log('没找到该用户。');
-        }
-        
-    }).catch((error) => {
-        console.log('出错了：', error);
-    });
-})();
 
 app.listen(3001);           // 监听3001端口
 console.log('app started at port 3001...');
