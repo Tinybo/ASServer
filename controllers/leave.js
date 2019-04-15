@@ -38,18 +38,18 @@ async function leave (ctx, next) {
                 total: 0
             }); break;
             case '2': result = await TeacherLeave.create({
-                name: '',
-                num: '',
-                sex: '',
-                college: '',
-                department: '',
-                position: '',
+                name: postData.name,
+                num: postData.num,
+                sex: postData.sex,
+                college: postData.college,
+                department: postData.department,
+                position: postData.position,
                 phone: postData.phone,
-                create_time: createTime,
+                createTime: dateTime + ' ' + momentTime,
+                startTime: postData.startTime + ' ' + postData.startMoment,
+                endTime: postData.endTime + ' ' + postData.endMoment,
+                reason: postData.reason,
                 total: 0,
-                type: postData.type,
-                isFinish: 1,
-                password: postData.password
             }); break;
             default: break;
         }
