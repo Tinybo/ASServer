@@ -48,7 +48,7 @@ async function login (ctx, next) {
             console.log('该用户不存在。');
             ctx.response.body = {
                 code: '404',
-                msg: '该用户不存在。'
+                msg: '账号或密码错误！'
             };
         } 
     }).catch((error) => {
@@ -208,6 +208,22 @@ async function perfectInfo (ctx, next) {
     let postData = await parsePostData(ctx);    // 获取请求数据
     let createTime = new Date();                // 创建注册时间
     let result = '';
+    let oriId = '';
+    let oriName = '';
+
+    // 统一数据命名(id)
+    oriId = postData.id;
+    oriId = oriId ? oriId : postData.stu_id;
+    oriId = oriId ? oriId : postData.tea_id;
+    oriId = oriId ? oriId : postData.off_id;
+    oriId = oriId ? oriId : postData.lea_id;
+
+    // 统一数据命名(name)
+    oriName = postData.name;
+    oriName = oriName ? oriName : postData.stu_name;
+    oriName = oriName ? oriName : postData.tea_name;
+    oriName = oriName ? oriName : postData.off_name;
+    oriName = oriName ? oriName : postData.lea_name;
 
     console.log(postData);
 
@@ -215,7 +231,7 @@ async function perfectInfo (ctx, next) {
         // 编写注册插入语句
         switch (postData.type) {
             case '1': result = await Student.update({
-                stu_name: postData.name,
+                stu_name: oriName,
                 num: postData.num,
                 sex: postData.sex,
                 college: postData.college,
@@ -230,11 +246,11 @@ async function perfectInfo (ctx, next) {
                 isFinish: 2
             }, {
                 where: {
-                    stu_id: postData.id
+                    stu_id: oriId
                 }
             }); break;
             case '2': result = await Teacher.update({
-                tea_name: postData.name,
+                tea_name: oriName,
                 num: postData.num,
                 sex: postData.sex,
                 college: postData.college,
@@ -247,11 +263,11 @@ async function perfectInfo (ctx, next) {
                 isFinish: 2,
             }, {
                 where: {
-                    tea_id: postData.id
+                    tea_id: oriId
                 }
             }); break;
             case '3': result = await Office.update({
-                off_name: postData.name,
+                off_name: oriName,
                 num: postData.num,
                 sex: postData.sex,
                 college: postData.college,
@@ -264,11 +280,11 @@ async function perfectInfo (ctx, next) {
                 isFinish: 2,
             }, {
                 where: {
-                    off_id: postData.id
+                    off_id: oriId
                 }
             }); break;
             case '4': result = await Leader.update({
-                lea_name: postData.name,
+                lea_name: oriName,
                 num: postData.num,
                 sex: postData.sex,
                 college: postData.college,
@@ -281,7 +297,7 @@ async function perfectInfo (ctx, next) {
                 isFinish: 2,
             }, {
                 where: {
-                    lea_id: postData.id
+                    lea_id: oriId
                 }
             }); break;
             default: break;
@@ -291,11 +307,13 @@ async function perfectInfo (ctx, next) {
         
         if (result) {
             console.log('已经完善成功。');
-            let temp = result.dataValues;
+    
             ctx.response.body = {
                 code: '200',
                 data: {
-                    stu_name: postData.stu_name,
+                    type: postData.type,
+                    id: oriId,
+                    name: oriName,
                     num: postData.num,
                     sex: postData.sex,
                     college: postData.college,
@@ -305,21 +323,23 @@ async function perfectInfo (ctx, next) {
                     grade: postData.grade,
                     position: postData.position,
                     qq: postData.qq,
+                    phone: postData.phone,
+                    age: postData.age,
                     isFinish: 2
                 }
             };
         } else {
-            console.log('注册失败。');
+            console.log('完善信息失败。');
             ctx.response.body = {
                 code: '404',
-                msg: '服务器异常，注册失败。'
+                msg: '服务器异常，完善信息失败。'
             };
         } 
     } catch (error) {
         console.log('插入数据异常。');
             ctx.response.body = {
                 code: '404',
-                msg: '服务器异常（插入数据），注册失败。'
+                msg: '服务器异常（插入数据），完善信息失败。'
             };
     }
 
