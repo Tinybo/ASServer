@@ -1,4 +1,4 @@
-const { StudentLEAVE, TeacherLEAVE } = require('../config/tableModal/leave');    // 导入请假表模型
+const { StudentLeave, TeacherLeave } = require('../config/tableModal/leave');    // 导入请假表模型
 const { parsePostData } = require('../utils/handlePost');    // 导入 POST 请求数据处理函数
 
 /**
@@ -12,16 +12,14 @@ async function leave (ctx, next) {
     ctx.response.type = 'json';                 // 设置数据返回格式
     let postData = await parsePostData(ctx);    // 获取请求数据
     let createTime = new Date();                // 创建注册时间
-    let result = '';
+    let dateTime = createTime.toLocaleDateString();
+    let momentTime = createTime.toLocaleTimeString();
 
-    console.log(postData); // 输出接收到的请假条信息
-    ctx.response.body = {
-        code: '200'
-    };
-    return;
+    console.log('请假条数据：', postData); // 输出接收到的请假条信息
+
     try {
         switch (postData.type) {
-            case '1': result = await StudentLEAVE.create({
+            case '1': result = await StudentLeave.create({
                 name: postData.name,
                 num: postData.num,
                 sex: postData.sex,
@@ -33,13 +31,13 @@ async function leave (ctx, next) {
                 position: postData.position,
                 phone: postData.phone,
                 qq: postData.qq,
-                create_time: createTime,
-                startTime: postData.startTime,
-                endTime: postData.endTime,
+                createTime: dateTime + ' ' + momentTime,
+                startTime: postData.startTime + ' ' + postData.startMoment,
+                endTime: postData.endTime + ' ' + postData.endMoment,
                 reason: postData.reason,
-                total: 0,
+                total: 0
             }); break;
-            case '2': result = await TeacherLEAVE.create({
+            case '2': result = await TeacherLeave.create({
                 name: '',
                 num: '',
                 sex: '',
@@ -74,10 +72,10 @@ async function leave (ctx, next) {
         } 
     } catch (error) {
         console.log('插入数据异常。');
-            ctx.response.body = {
-                code: '404',
-                msg: '服务器异常（插入数据），提交请假条失败。'
-            };
+        ctx.response.body = {
+            code: '404',
+            msg: '服务器异常（插入数据），提交请假条失败。'
+        };
     }
 
     await next();
