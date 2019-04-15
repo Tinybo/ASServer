@@ -81,6 +81,72 @@ async function leave (ctx, next) {
     await next();
 }
 
+/**
+ * 查询请假条。
+ * @author Tinybo
+ * @date 2019 04 15
+ * @param {*} ctx 上下文对象
+ * @param {*} next 程序控制对象
+ */
+async function getLeaveNote (ctx, next) {
+    ctx.response.type = 'json' // 设置数据返回格式
+    let reqUrl = ctx.request.url;
+    let reqData = reqUrl.split('?');
+    reqData = reqData[1].split('&');
+    let oriData = {};
+
+    reqData.forEach(value => {
+        let temp = value.split('=');
+        oriData[temp[0]] = temp[1]; 
+    });
+
+    console.log('请求参数：', oriData);
+
+    let Query = StudentLeave;
+    switch (oriData['type']) {
+        case '1': Query = StudentLeave; break;
+        case '2': Query = TeacherLeave; break;
+        default: break;
+    }
+
+    try {
+        // 编写查询语句
+        await Query.findAll({
+            where: {
+                userId: oriData['userId'],
+                num: oriData['num']
+            }
+        }).then((data) => {
+            if (data[0]) {
+                console.log('已经成功找到该用户。');
+                ctx.response.body = {
+                    code: '200',
+                    data: data
+                };
+            } else {
+                console.log('该用户不存在。');
+                ctx.response.body = {
+                    code: '404',
+                    msg: '账号或密码错误！'
+                };
+            } 
+        }).catch((error) => {
+            console.log('出错了：', error);
+        });
+    } catch (error) {
+        console.log('插入数据异常。');
+        ctx.response.body = {
+            code: '404',
+            msg: '服务器异常（插入数据），提交请假条失败。'
+        };
+    }
+
+    await next();
+}
+
+
+
 module.exports = {
-    'POST /leave': leave
+    'POST /leave': leave,
+    'GET /getLeaveNote': getLeaveNote
 };
