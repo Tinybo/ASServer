@@ -114,12 +114,12 @@ async function cancelLeave (ctx, next) {
                 }
             }); break;
             case '2': result = await TeacherLeave.update({
-                cancel_leave: 1
+                cancel_leave: 1,
+                isSuccess: 3
             }, {
                 where: {
                     id: postData.id,
-                    userId: postData.userId,
-                    isSuccess: 3
+                    userId: postData.userId, 
                 }
             }); break;
             default: break;
