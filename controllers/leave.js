@@ -35,7 +35,11 @@ async function leave (ctx, next) {
                 startTime: postData.startTime + ' ' + postData.startMoment,
                 endTime: postData.endTime + ' ' + postData.endMoment,
                 reason: postData.reason,
-                total: 0
+                userId: postData.id,
+                off_opinion: 0,
+                department_opinion: 0,
+                isSuccess: 0,
+                cancel_leave: 0
             }); break;
             case '2': result = await TeacherLeave.create({
                 name: postData.name,
@@ -49,7 +53,10 @@ async function leave (ctx, next) {
                 startTime: postData.startTime + ' ' + postData.startMoment,
                 endTime: postData.endTime + ' ' + postData.endMoment,
                 reason: postData.reason,
-                total: 0,
+                userId: postData.id,
+                department_opinion: 0,
+                isSuccess: 0,
+                cancel_leave: 0
             }); break;
             default: break;
         }
@@ -75,6 +82,70 @@ async function leave (ctx, next) {
         ctx.response.body = {
             code: '404',
             msg: '服务器异常（插入数据），提交请假条失败。'
+        };
+    }
+
+    await next();
+}
+
+/**
+ * 销假。
+ * @author Tinybo
+ * @date 2019 04 16
+ * @param {*} ctx 上下文对象
+ * @param {*} next 程序控制对象
+ */
+async function cancelLeave (ctx, next) {
+    ctx.response.type = 'json';                 // 设置数据返回格式
+    let postData = await parsePostData(ctx);    // 获取请求数据
+    let result = '';
+
+    console.log('销假数据：', postData);            // 输出接收到的请假条信息
+
+    try {
+        switch (postData.type) {
+            case '1': result = await StudentLeave.update({
+                cancel_leave: 1,
+                isSuccess: 3
+            }, {
+                where: {
+                    id: postData.id,
+                    userId: postData.userId
+                }
+            }); break;
+            case '2': result = await TeacherLeave.update({
+                cancel_leave: 1
+            }, {
+                where: {
+                    id: postData.id,
+                    userId: postData.userId,
+                    isSuccess: 3
+                }
+            }); break;
+            default: break;
+        }
+
+        if (result) {
+            console.log('已经成功销假。');
+            ctx.response.body = {
+                code: '200',
+                data: {
+                    id: postData.id,
+                    userId: postData.userId
+                }
+            };
+        } else {
+            console.log('销假失败。');
+            ctx.response.body = {
+                code: '404',
+                msg: '服务器异常，销假失败。'
+            };
+        } 
+    } catch (error) {
+        console.log('插入数据异常。');
+        ctx.response.body = {
+            code: '404',
+            msg: '服务器异常（插入数据），销假失败。'
         };
     }
 
@@ -114,7 +185,7 @@ async function getLeaveNote (ctx, next) {
         await Query.findAll({
             where: {
                 userId: oriData['userId'],
-                num: oriData['num']
+                num: oriData['num'],
             }
         }).then((data) => {
             if (data[0]) {
@@ -144,9 +215,8 @@ async function getLeaveNote (ctx, next) {
     await next();
 }
 
-
-
 module.exports = {
     'POST /leave': leave,
-    'GET /getLeaveNote': getLeaveNote
+    'GET /getLeaveNote': getLeaveNote,
+    'POST /cancelLeave': cancelLeave
 };

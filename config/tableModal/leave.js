@@ -33,12 +33,13 @@ const StudentLeave = sequelize.define('student_leave', {
     startTime: Sequelize.DATE,
     endTime: Sequelize.DATE,
     createTime: Sequelize.DATE,
-    total: Sequelize.BIGINT,
+    isSuccess: Sequelize.BIGINT,
     off_opinion: Sequelize.BIGINT,
     department_opinion: Sequelize.BIGINT,
     note: Sequelize.STRING,
     cancel_leave: Sequelize.BIGINT,
     reason: Sequelize.STRING,
+    userId: Sequelize.BIGINT,
 }, {
     timestamps: false,
     freezeTableName: true
@@ -59,12 +60,12 @@ const TeacherLeave = sequelize.define('teacher_leave', {
     startTime: Sequelize.DATE,
     endTime: Sequelize.DATE,
     createTime: Sequelize.DATE,
-    total: Sequelize.BIGINT,
-    off_opinion: Sequelize.BIGINT,
+    isSuccess: Sequelize.BIGINT,
     department_opinion: Sequelize.BIGINT,
     note: Sequelize.STRING,
     cancel_leave: Sequelize.BIGINT,
     reason: Sequelize.STRING,
+    userId: Sequelize.STRING
 }, {
     timestamps: false,
     freezeTableName: true
