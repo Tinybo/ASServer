@@ -79,6 +79,7 @@ const  Office = sequelize.define('office', {
     sex: Sequelize.STRING,
     college: Sequelize.STRING,
     department: Sequelize.STRING,
+    position: Sequelize.STRING,
     phone: Sequelize.STRING,
     create_time: Sequelize.DATE,
     new_time: Sequelize.DATE,
@@ -99,12 +100,14 @@ const Leader = sequelize.define('leader', {
     lea_name: Sequelize.STRING,
     college: Sequelize.STRING,
     department: Sequelize.STRING,
+    position: Sequelize.STRING,
     num: Sequelize.STRING,
     sex: Sequelize.STRING,
     phone: Sequelize.STRING,
     type: Sequelize.BIGINT,
     isFinish: Sequelize.BIGINT,
-    password: Sequelize.STRING
+    password: Sequelize.STRING,
+    create_time: Sequelize.DATE,
 }, {
     timestamps: false,
     freezeTableName: true
