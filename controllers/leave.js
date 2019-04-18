@@ -215,8 +215,131 @@ async function getLeaveNote (ctx, next) {
     await next();
 }
 
+
+/**
+ * 获取所有请假条。
+ * @author Tinybo
+ * @date 2019 04 18
+ * @param {*} ctx 上下文对象
+ * @param {*} next 程序控制对象
+ */
+async function getAllLeave (ctx, next) {
+    ctx.response.type = 'json';                 // 设置数据返回格式
+    let postData = await parsePostData(ctx);    // 获取请求数据
+    let result = '';
+
+    console.log('请求数据：', postData);          // 输出接收到的请假条信息
+
+    let Query = StudentLeave;
+    switch (postData['type']) {
+        case '3': Query = StudentLeave; break;
+        case '4': Query = TeacherLeave; break;
+        default: break;
+    }
+
+    try {
+        // 编写查询语句
+        await Query.findAll({
+            where: {
+                college: postData['college'],
+                department: postData['department'],
+            }
+        }).then((data) => {
+            if (data[0]) {
+                console.log('已经成功找到所有请假条。');
+                ctx.response.body = {
+                    code: '200',
+                    data: data
+                };
+            } else {
+                console.log('请假条查找失败。');
+                ctx.response.body = {
+                    code: '404',
+                    msg: '请假条查找失败。'
+                };
+            } 
+        }).catch((error) => {
+            console.log('出错了：', error);
+        });
+    } catch (error) {
+        console.log('查询数据异常。');
+        ctx.response.body = {
+            code: '404',
+            msg: '服务器异常（查询数据），请假条查找失败。。'
+        };
+    }
+
+    await next();
+}
+
+/**
+ * 批假
+ * @author Tinybo
+ * @date 2019 04 18
+ * @param {*} ctx 上下文对象
+ * @param {*} next 程序控制对象
+ */
+async function passLeave (ctx, next) {
+    ctx.response.type = 'json';                 // 设置数据返回格式
+    let postData = await parsePostData(ctx);    // 获取请求数据
+    let result = '';
+
+    console.log('批假数据：', postData);            // 输出接收到的请假条信息
+
+    try {
+        switch (postData.type) {
+            case '3': result = await StudentLeave.update({
+                off_opinion: 1,
+                isSuccess: 1
+            }, {
+                where: {
+                    id: postData.id,
+                    userId: postData.userId
+                }
+            }); break;
+            case '4': result = await TeacherLeave.update({
+                department_opinion: 1,
+                isSuccess: 1
+            }, {
+                where: {
+                    id: postData.id,
+                    userId: postData.userId, 
+                }
+            }); break;
+            default: break;
+        }
+
+        if (result) {
+            console.log('已经成功批假。');
+            ctx.response.body = {
+                code: '200',
+                data: {
+                    id: postData.id,
+                    userId: postData.userId
+                }
+            };
+        } else {
+            console.log('批假失败。');
+            ctx.response.body = {
+                code: '404',
+                msg: '服务器异常，批假失败。'
+            };
+        } 
+    } catch (error) {
+        console.log('更新数据异常。');
+        ctx.response.body = {
+            code: '404',
+            msg: '服务器异常（插入数据），批假失败。'
+        };
+    }
+
+    await next();
+}
+
 module.exports = {
     'POST /leave': leave,
     'GET /getLeaveNote': getLeaveNote,
-    'POST /cancelLeave': cancelLeave
+    'POST /getAllLeave': getAllLeave,
+    'POST /cancelLeave': cancelLeave,
+    'POST /passLeave': passLeave
 };
