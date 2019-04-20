@@ -234,6 +234,7 @@ async function perfectInfo (ctx, next) {
                 stu_name: oriName,
                 num: postData.num,
                 sex: postData.sex,
+                age: postData.age,
                 college: postData.college,
                 department: postData.department,
                 major: postData.major,
