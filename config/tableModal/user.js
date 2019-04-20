@@ -19,7 +19,7 @@ let sequelize = new Sequelize(
 
 // 学生用户表映射模型
 const Student = sequelize.define('student', {
-    stu_id: { type: Sequelize.STRING, primaryKey: true },
+    stu_id: { type: Sequelize.STRING, primaryKey: true, autoIncrement: true },
     stu_name: Sequelize.STRING,
     num: Sequelize.STRING,
     sex: Sequelize.STRING,
@@ -48,7 +48,7 @@ const Student = sequelize.define('student', {
 
 // 教师用户表映射模型
 const  Teacher = sequelize.define('teacher', {
-    tea_id: { type: Sequelize.STRING, primaryKey: true },
+    tea_id: { type: Sequelize.STRING, primaryKey: true, autoIncrement: true },
     tea_name: Sequelize.STRING,
     num: Sequelize.STRING,
     sex: Sequelize.STRING,
@@ -73,7 +73,7 @@ const  Teacher = sequelize.define('teacher', {
 
 // 学工办用户表映射模型
 const  Office = sequelize.define('office', {
-    off_id: { type: Sequelize.STRING, primaryKey: true },
+    off_id: { type: Sequelize.STRING, primaryKey: true, autoIncrement: true },
     off_name: Sequelize.STRING,
     num: Sequelize.STRING,
     sex: Sequelize.STRING,
@@ -97,7 +97,7 @@ const  Office = sequelize.define('office', {
 
 // 学院领导用户表映射模型
 const Leader = sequelize.define('leader', {
-    lea_id: { type: Sequelize.STRING, primaryKey: true },
+    lea_id: { type: Sequelize.STRING, primaryKey: true, autoIncrement: true },
     lea_name: Sequelize.STRING,
     college: Sequelize.STRING,
     department: Sequelize.STRING,

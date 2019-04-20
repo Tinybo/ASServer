@@ -17,29 +17,31 @@ let sequelize = new Sequelize(
     }
 );
 
-// 学生用户表映射模型
-const StudentLeave = sequelize.define('student_leave', {
-    id: { type: Sequelize.STRING, primaryKey: true, autoIncrement: true },
+// 课程主表
+const CourseParent = sequelize.define('course_parent', {
+    id: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
     name: Sequelize.STRING,
+    tea_id: Sequelize.BIGINT,
+    tea_name: Sequelize.STRING,
     num: Sequelize.STRING,
     college: Sequelize.STRING,
     department: Sequelize.STRING,
-    major: Sequelize.STRING,
-    class: Sequelize.STRING,
-    grade: Sequelize.STRING,
-    position: Sequelize.STRING,
     phone: Sequelize.STRING,
-    qq: Sequelize.STRING,
+    major: Sequelize.STRING,
+    grade: Sequelize.STRING,
+    class: Sequelize.STRING,
+    createTime: Sequelize.DATE,
     startTime: Sequelize.DATE,
     endTime: Sequelize.DATE,
-    createTime: Sequelize.DATE,
-    isSuccess: Sequelize.BIGINT,
-    off_opinion: Sequelize.BIGINT,
-    department_opinion: Sequelize.BIGINT,
-    note: Sequelize.STRING,
-    cancel_leave: Sequelize.BIGINT,
-    reason: Sequelize.STRING,
-    userId: Sequelize.BIGINT,
+    should_num: Sequelize.BIGINT,
+    real_num: Sequelize.BIGINT,
+    ask_leave_num: Sequelize.BIGINT,
+    late_num: Sequelize.BIGINT,
+    truancy_num: Sequelize.BIGINT,
+    leave_early_num: Sequelize.BIGINT,
+    address: Sequelize.STRING,
+    type: Sequelize.BIGINT,
+    isFinish: Sequelize.BIGINT
 }, {
     timestamps: false,
     freezeTableName: true
@@ -48,24 +50,23 @@ const StudentLeave = sequelize.define('student_leave', {
     console.log('ORM已完成！');
 });
 
-// 教师用户表映射模型
-const TeacherLeave = sequelize.define('teacher_leave', {
-    id: { type: Sequelize.STRING, primaryKey: true, autoIncrement: true },
+// 课程子表
+const CourseChild = sequelize.define('course_child', {
+    id: { type: Sequelize.BIGINT, primaryKey: true, autoIncrement: true },
+    userId: Sequelize.BIGINT,
+    course_id: Sequelize.BIGINT,
     name: Sequelize.STRING,
+    course_name: Sequelize.STRING,
     num: Sequelize.STRING,
     college: Sequelize.STRING,
     department: Sequelize.STRING,
-    position: Sequelize.STRING,
     phone: Sequelize.STRING,
-    startTime: Sequelize.DATE,
-    endTime: Sequelize.DATE,
     createTime: Sequelize.DATE,
-    isSuccess: Sequelize.BIGINT,
-    department_opinion: Sequelize.BIGINT,
-    note: Sequelize.STRING,
-    cancel_leave: Sequelize.BIGINT,
-    reason: Sequelize.STRING,
-    userId: Sequelize.STRING
+    major: Sequelize.STRING,
+    class: Sequelize.STRING,
+    grade: Sequelize.STRING,
+    type: Sequelize.BIGINT,
+    status: Sequelize.BIGINT
 }, {
     timestamps: false,
     freezeTableName: true
@@ -75,6 +76,6 @@ const TeacherLeave = sequelize.define('teacher_leave', {
 });
 
 module.exports = {
-    StudentLeave,
-    TeacherLeave,
+    CourseParent,
+    CourseChild
 }
