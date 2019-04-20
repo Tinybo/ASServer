@@ -81,7 +81,7 @@ async function leave (ctx, next) {
         console.log('插入数据异常。');
         ctx.response.body = {
             code: '404',
-            msg: '服务器异常（插入数据），提交请假条失败。'
+            msg: '错误原因：' + error
         };
     }
 
@@ -145,7 +145,7 @@ async function cancelLeave (ctx, next) {
         console.log('插入数据异常。');
         ctx.response.body = {
             code: '404',
-            msg: '服务器异常（插入数据），销假失败。'
+            msg: '错误原因：' + error
         };
     }
 
@@ -208,7 +208,7 @@ async function getLeaveNote (ctx, next) {
         console.log('插入数据异常。');
         ctx.response.body = {
             code: '404',
-            msg: '服务器异常（插入数据），提交请假条失败。'
+            msg: '错误原因：' + error
         };
     }
 
@@ -329,7 +329,7 @@ async function passLeave (ctx, next) {
         console.log('更新数据异常。');
         ctx.response.body = {
             code: '404',
-            msg: '服务器异常（插入数据），批假失败。'
+            msg: '错误原因：' + error
         };
     }
 
@@ -395,7 +395,7 @@ async function rejectLeave (ctx, next) {
         console.log('更新数据异常。');
         ctx.response.body = {
             code: '404',
-            msg: '服务器异常（插入数据），拒绝请假失败。'
+            msg: '错误原因：' + error
         };
     }
 

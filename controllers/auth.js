@@ -189,7 +189,7 @@ async function register (ctx, next) {
         console.log('插入数据异常。');
             ctx.response.body = {
                 code: '404',
-                msg: '服务器异常（插入数据），注册失败。'
+                msg: '错误原因：' + error
             };
     }
 
@@ -342,7 +342,7 @@ async function perfectInfo (ctx, next) {
         console.log('插入数据异常。');
             ctx.response.body = {
                 code: '404',
-                msg: '服务器异常（插入数据），完善信息失败。'
+                msg: '错误原因：' + error
             };
     }
 
