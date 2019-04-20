@@ -40,7 +40,7 @@ const CourseParent = sequelize.define('course_parent', {
     truancy_num: Sequelize.BIGINT,
     leave_early_num: Sequelize.BIGINT,
     address: Sequelize.STRING,
-    type: Sequelize.BIGINT,
+    note: Sequelize.STRING,
     isFinish: Sequelize.BIGINT
 }, {
     timestamps: false,
@@ -65,7 +65,6 @@ const CourseChild = sequelize.define('course_child', {
     major: Sequelize.STRING,
     class: Sequelize.STRING,
     grade: Sequelize.STRING,
-    type: Sequelize.BIGINT,
     status: Sequelize.BIGINT
 }, {
     timestamps: false,
