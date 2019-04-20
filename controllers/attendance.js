@@ -32,6 +32,7 @@ async function createCourse (ctx, next) {
             phone: postData.phone,
             createTime: dateTime + ' ' + momentTime,
             address: postData.addrss,
+            isFinish: 0
         });
         
         if (result.dataValues) {
@@ -59,6 +60,49 @@ async function createCourse (ctx, next) {
     await next();
 }
 
+/**
+ * 完成搜索课堂操作。
+ * @author Tinybo
+ * @date 2019 04 20
+ * @param {*} ctx 上下文对象
+ * @param {*} next 程序控制对象
+ */
+async function searchCourse (ctx, next) {
+    ctx.response.type = 'json';                 // 设置数据返回格式
+    let postData = await parsePostData(ctx);    // 获取请求数据
+    let createTime = new Date();                // 创建注册时间
+    let dateTime = createTime.toLocaleDateString();
+    let momentTime = createTime.toLocaleTimeString();
+
+    console.log('请求参数', postData); // 输出接收到的请假条信息
+
+    // 编写查询语句
+    await CourseParent.findAll({
+        where: {
+            id: postData.courseId
+        }
+    }).then((data) => {
+        if (data[0]) {
+            console.log('已经成功找到该课堂。');
+            ctx.response.body = {
+                code: '200',
+                data: data[0]
+            };
+        } else {
+            console.log('该用户不存在。');
+            ctx.response.body = {
+                code: '404',
+                msg: '该课堂不存在！'
+            };
+        } 
+    }).catch((error) => {
+        console.log('出错了：', error);
+    });
+
+    await next();
+}
+
 module.exports = {
     'POST /createCourse': createCourse,
+    'POST /searchCourse': searchCourse
 };
