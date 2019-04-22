@@ -1,7 +1,27 @@
 const { CourseParent, CourseChild } = require('../config/tableModal/attendance');    // 导入请假表模型
 const { Student } = require('../config/tableModal/user');    // 导入请假表模型
-
 const { parsePostData } = require('../utils/handlePost');    // 导入 POST 请求数据处理函数
+const { handleValue } = require('../utils/handleData');
+
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+const config = require('../config/mysql');       // 导入数据库配置
+
+// 创建sequelize(ORM)实例
+let sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    {
+        host: config.host,
+        dialect: 'mysql',
+        pool: {
+            max: 5,
+            min: 0,
+            idle: 30000
+        }
+    }
+);
 
 /**
  * 完成填写课堂表操作。
@@ -122,67 +142,175 @@ async function signIn (ctx, next) {
 
     // 编写查询语句
     try {
-        // 查找同专业、同年级、同班级的所有学生
-        await Student.findAll({
+        let hasRecordCombine = false;
+
+        // 1. 判断该学校-系别-专业-年级-班级是否被保存过。
+        let string = postData.college + '-' + postData.department + '-' + postData.major + '-' + postData.grade + '-' + postData.class; 
+        await CourseParent.findAll({
             where: {
-                college: postData.college,
-                department: postData.department,
-                major: postData.major,
-                grade: postData.grade,
-                class: postData.class
+                combine_string: { $like:'%' + string + '%' }
             }
         }).then((data) => {
             if (data[0]) {
-                console.log('已经成功找到所有学生。');
-                let should_num = data.length;
-
-                ctx.response.body = {
-                    code: '200',
-                    data: data
-                };
-            } else {
-                console.log('该专业，年级，班级的同学没有！');
-                ctx.response.body = {
-                    code: '404',
-                    msg: '该专业，年级，班级的同学没有！'
-                };
-            } 
+                hasRecordCombine = true;
+            }
         }).catch((error) => {
             ctx.response.body = {
                 code: '404',
                 msg: '错误原因：' + error
             };
         });
+
+        console.log('是否有：', hasRecordCombine);
+        // 2. 如果没有，则将该值插入到 course_parent，并查找该学校-系别-专业-年级-班级的所有学生。
+        if (!hasRecordCombine) {
+            // 将组合值插入到 course_parent
+            await CourseParent.update({
+                tea_id: postData.tea_id,
+                tea_name: postData.tea_name,
+                name: postData.course_name,
+                department: '',
+                major: '',
+                grade: '',
+                class: '',
+                combine_string: Sequelize.fn("concat", Sequelize.col("combine_string"), string + ';'), 
+            },{
+                where: {
+                    id: postData.course_id
+                }
+            });
+
+            // 3. 查找同专业、同年级、同班级的所有学生
+            let allStudents = [];
+            await Student.findAll({
+                where: {
+                    college: postData.college,
+                    department: postData.department,
+                    major: postData.major,
+                    grade: postData.grade,
+                    class: postData.class
+                }
+            }).then((data) => {
+                if (data[0]) {
+                    allStudents = handleValue(data);
+                } else {
+                    console.log('该专业，年级，班级的同学没有！');
+                    ctx.response.body = {
+                        code: '404',
+                        msg: string + '：没有学生！'
+                    };
+                } 
+            }).catch((error) => {
+                ctx.response.body = {
+                    code: '404',
+                    msg: '错误原因：' + error
+                };
+            });
+
+            // 4. 将所有学生插入到课堂子表。
+            console.log('allStudents', allStudents.length);
+            allStudents.forEach(async (x) => {
+                let status = x.stu_id == postData.userId ? 1 : 0;
+                await CourseChild.create({
+                    userId: x.stu_id,
+                    course_id: postData.course_id,
+                    stu_name: x.stu_name,
+                    course_name: postData.course_name,
+                    tea_id: postData.tea_id,
+                    tea_name: postData.tea_name,
+                    num: x.num,
+                    college: x.college,
+                    department: x.department,
+                    phone: x.phone,
+                    createTime: dateTime + ' ' + momentTime,
+                    major: x.major,
+                    grade: x.grade,
+                    class: x.class,
+                    status: status
+                }).then((data) => {
+                    if (data) {
+                        console.log(x.stu_name + ' 已经成功签到。');
+                    } else {
+                        console.log(x.stu_name + ' 签到失败。');
+                    } 
+                }).catch((error) => {
+                    ctx.response.body = {
+                        code: '404',
+                        msg: '插入到学生信息到子表出错：' + error
+                    };
+                });
+            });
+        } else {
+            // 更改该学生的签到状态
+            await CourseChild.update({
+                userId: postData.userId,
+                course_id: postData.course_id,
+                course_name: postData.course_name,
+                num: postData.num,
+                college: postData.college,
+                department: postData.department,
+                phone: postData.phone,
+                createTime: dateTime + ' ' + momentTime,
+                major: postData.major,
+                grade: postData.grade,
+                class: postData.class,
+                status: 1
+            },{
+                where: {
+                    userId: postData.userId,
+                    course_id: postData.course_id
+                }
+            }).then((data) => {
+                if (data) {
+                    console.log(postData.stu_name + ' 已经成功签到。');
+                } else {
+                    console.log(postData.stu_name + ' 签到失败。');
+                } 
+            }).catch((error) => {
+                ctx.response.body = {
+                    code: '404',
+                    msg: '更改学生状态出错：' + error
+                };
+            });
+        }
+
+        // 5. 更改实到人数, 总人数可以最后保存时更新
+        await CourseParent.findById(postData.course_id).then(function(user){
+            user.increment('real_num').then(function(user){
+                console.log(postData.stu_name + ' 已经成功签到。');
+                ctx.response.body = {
+                    code: '200',
+                    data: {
+                        stu_id: postData.userId
+                    }
+                };
+            }).catch((error) => {
+                ctx.response.body = {
+                    code: '404',
+                    msg: '错误原因1：' + error
+                };
+            });
+        }).catch((error) => {
+            ctx.response.body = {
+                code: '404',
+                msg: '错误原因2：' + error
+            };
+        });
+
+        ctx.response.body = {
+            code: '200',
+            data: {
+                stu_id: postData.userId
+            }
+        };
     } catch (error) {
         ctx.response.body = {
             code: '404',
-            msg: '错误原因：' + error
+            msg: '错误原因3：' + error
         };
     }
 
     return;
-    await CourseParent.findAll({
-        where: {
-            id: postData.courseId
-        }
-    }).then((data) => {
-        if (data[0]) {
-            console.log('已经成功找到该课堂。');
-            ctx.response.body = {
-                code: '200',
-                data: data[0]
-            };
-        } else {
-            console.log('该用户不存在。');
-            ctx.response.body = {
-                code: '404',
-                msg: '该课堂不存在！'
-            };
-        } 
-    }).catch((error) => {
-        console.log('出错了：', error);
-    });
-
     await next();
 }
 
