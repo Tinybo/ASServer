@@ -310,7 +310,6 @@ async function signIn (ctx, next) {
         };
     }
 
-    return;
     await next();
 }
 
@@ -365,9 +364,66 @@ async function getAllCourse (ctx, next) {
     await next();
 }
 
+/**
+ * 完成获取某堂课的某个班的所有学生操作。
+ * @author Tinybo
+ * @date 2019 04 22
+ * @param {*} ctx 上下文对象
+ * @param {*} next 程序控制对象
+ */
+async function getAllStudent (ctx, next) {
+    ctx.response.type = 'json';                 // 设置数据返回格式
+    let postData = await parsePostData(ctx);    // 获取请求数据
+
+    console.log('请求参数', postData); // 输出接收到的请假条信息
+
+    // 编写查询语句
+    try {
+        // 根据教师ID查找所有课程
+        await CourseChild.findAll({
+            where: {
+                course_id: postData.course_id,
+                college: postData.college,
+                department: postData.department,
+                major: postData.major,
+                grade: postData.grade,
+                class: postData.class
+            }
+        }).then((data) => {
+            if (data[0]) {
+                console.log('已经成功找到所有学生。');
+
+                ctx.response.body = {
+                    code: '200',
+                    data: data
+                };
+            } else {
+                console.log('该班级学生不存在！');
+                ctx.response.body = {
+                    code: '200',
+                    data: []
+                };
+            } 
+        }).catch((error) => {
+            ctx.response.body = {
+                code: '404',
+                msg: '错误原因：' + error
+            };
+        });
+    } catch (error) {
+        ctx.response.body = {
+            code: '404',
+            msg: '错误原因：' + error
+        };
+    }
+
+    await next();
+}
+
 module.exports = {
     'POST /createCourse': createCourse,
     'POST /searchCourse': searchCourse,
     'POST /signIn': signIn,
-    'POST /getAllCourse': getAllCourse
+    'POST /getAllCourse': getAllCourse,
+    'POST /getAllStudent': getAllStudent,
 };
