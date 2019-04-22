@@ -9,7 +9,7 @@ async function about (ctx, next) {
 }
 
 async function signIn (ctx, next) {
-    let name = ctx.request.body.name || '';
+    /* let name = ctx.request.body.name || '';
     let password = ctx.request.body.password || '';
     console.log('进来了。', name, password);
 
@@ -17,7 +17,7 @@ async function signIn (ctx, next) {
         ctx.response.body = '<h1>欢迎进入青豆博客.</h1>';
     } else {
         ctx.response.body = '<h1>大佬，账号或密码错误哦.</h1>';
-    }
+    } */
     await next();
 }
 
