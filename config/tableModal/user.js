@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');         // 导入ORM框架
 const config = require('../mysql');       // 导入数据库配置
+const Op = Sequelize.Op;
 
 // 创建sequelize(ORM)实例
 let sequelize = new Sequelize(
