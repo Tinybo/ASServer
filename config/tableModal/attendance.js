@@ -41,7 +41,8 @@ const CourseParent = sequelize.define('course_parent', {
     leave_early_num: Sequelize.BIGINT,
     address: Sequelize.STRING,
     note: Sequelize.STRING,
-    isFinish: Sequelize.BIGINT
+    isFinish: Sequelize.BIGINT,
+    combine_string: Sequelize.STRING,
 }, {
     timestamps: false,
     freezeTableName: true
@@ -65,7 +66,10 @@ const CourseChild = sequelize.define('course_child', {
     major: Sequelize.STRING,
     class: Sequelize.STRING,
     grade: Sequelize.STRING,
-    status: Sequelize.BIGINT
+    status: Sequelize.BIGINT,
+    tea_id: Sequelize.BIGINT,
+    tea_name: Sequelize.STRING,
+    stu_name: Sequelize.STRING,
 }, {
     timestamps: false,
     freezeTableName: true
