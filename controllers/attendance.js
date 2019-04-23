@@ -148,7 +148,8 @@ async function signIn (ctx, next) {
         let string = postData.college + '-' + postData.department + '-' + postData.major + '-' + postData.grade + '-' + postData.class; 
         await CourseParent.findAll({
             where: {
-                combine_string: { $like:'%' + string + '%' }
+                combine_string: { $like:'%' + string + '%' },
+                id: postData.course_id
             }
         }).then((data) => {
             if (data[0]) {
@@ -420,10 +421,74 @@ async function getAllStudent (ctx, next) {
     await next();
 }
 
+/**
+ * 设置学生的到课状态。
+ * @author Tinybo
+ * @date 2019 04 23
+ * @param {*} ctx 上下文对象
+ * @param {*} next 程序控制对象
+ */
+async function setStudentStatus (ctx, next) {
+    ctx.response.type = 'json';                 // 设置数据返回格式
+    let postData = await parsePostData(ctx);    // 获取请求数据
+
+    console.log('请求参数', postData); // 输出接收到的请假条信息
+
+    // 编写查询语句
+    try {
+        // 根据教师ID查找所有课程
+        // 更改该学生的签到状态
+        await CourseChild.update({
+            userId: postData.stu_id,
+            course_id: postData.course_id,
+            course_name: postData.course_name,
+            num: postData.num,
+            college: postData.college,
+            department: postData.department,
+            phone: postData.phone,
+            createTime: postData.createTime,
+            major: postData.major,
+            grade: postData.grade,
+            class: postData.class,
+            status: postData.status
+        },{
+            where: {
+                userId: postData.stu_id,
+                course_id: postData.course_id
+            }
+        }).then((data) => {
+            if (data) {
+                ctx.response.body = {
+                    code: '200',
+                    data: postData
+                };
+            } else {
+                ctx.response.body = {
+                    code: '404',
+                    msg: '更改学生状态出错：' + error
+                };
+            } 
+        }).catch((error) => {
+            ctx.response.body = {
+                code: '404',
+                msg: '更改学生状态出错：' + error
+            };
+        });
+    } catch (error) {
+        ctx.response.body = {
+            code: '404',
+            msg: '错误原因：' + error
+        };
+    }
+
+    await next();
+}
+
 module.exports = {
     'POST /createCourse': createCourse,
     'POST /searchCourse': searchCourse,
     'POST /signIn': signIn,
     'POST /getAllCourse': getAllCourse,
     'POST /getAllStudent': getAllStudent,
+    'POST /setStudentStatus': setStudentStatus
 };
