@@ -380,7 +380,7 @@ async function getAllStudent (ctx, next) {
 
     // 编写查询语句
     try {
-        // 根据教师ID查找所有课程
+        // 根据教师ID查找所有学生
         await CourseChild.findAll({
             where: {
                 course_id: postData.course_id,
@@ -484,11 +484,114 @@ async function setStudentStatus (ctx, next) {
     await next();
 }
 
+/**
+ * 结束课堂。
+ * @author Tinybo
+ * @date 2019 04 24
+ * @param {*} ctx 
+ * @param {*} next 
+ */
+async function endCourse(ctx, next) {
+    ctx.response.type = 'json';                 // 设置数据返回格式
+    let postData = await parsePostData(ctx);    // 获取请求数据
+
+    console.log('请求参数', postData); // 输出接收到的请假条信息
+
+    // 编写查询语句
+    try {
+        let allStu = [];
+        // 1. 根据课堂ID查找所有学生
+        await CourseChild.findAll({
+            where: {
+                course_id: postData.course_id,
+                status: 0
+            }
+        }).then((data) => {
+            if (data[0]) {
+                allStu = handleValue(data);
+            }
+        }).catch((error) => {
+            ctx.response.body = {
+                code: '404',
+                msg: '错误原因：' + error
+            };
+        });
+
+        // 2. 更改该学生的签到状态
+        if (allStu[0]) {
+            // 2. 更改该学生的签到状态
+            allStu.forEach(async (x) => {
+                await CourseChild.update({
+                    userId: x.userId,
+                    course_id: x.course_id,
+                    course_name: x.course_name,
+                    num: x.num,
+                    college: x.college,
+                    department: x.department,
+                    phone: x.phone,
+                    createTime: x.createTime,
+                    major: x.major,
+                    grade: x.grade,
+                    class: x.class,
+                    status: 5
+                },{
+                    where: {
+                        userId: x.userId,
+                        course_id: x.course_id
+                    }
+                }).then((data) => {
+                    if (data) {
+                        console.log(x.stu_name + ' 已经设置为旷课。');
+                    } else {
+                        ctx.response.body = {
+                            code: '404',
+                            msg: '更改学生状态出错：' + error
+                        };
+                    } 
+                }).catch((error) => {
+                    ctx.response.body = {
+                        code: '404',
+                        msg: '更改学生状态出错：' + error
+                    };
+                });
+            })
+        }
+
+        // 3. 结束课堂
+        await CourseParent.update({
+            isFinish: 1
+        },{
+            where: {
+                id: postData.course_id
+            }
+        }).then(data => {
+            ctx.response.body = {
+                code: '200',
+                data: postData
+            };
+            console.log('设置课堂为结束状态。', data)
+        }).catch(error => {
+            ctx.response.body = {
+                code: '404',
+                msg: '错误原因：' + error
+            };
+        }); 
+    } catch (error) {
+        ctx.response.body = {
+            code: '404',
+            msg: '错误原因：' + error
+        };
+    }
+
+    await next();
+}
+
 module.exports = {
     'POST /createCourse': createCourse,
     'POST /searchCourse': searchCourse,
     'POST /signIn': signIn,
     'POST /getAllCourse': getAllCourse,
     'POST /getAllStudent': getAllStudent,
-    'POST /setStudentStatus': setStudentStatus
+    'POST /setStudentStatus': setStudentStatus,
+    'POST /endCourse': endCourse
 };
