@@ -721,12 +721,10 @@ async function getStatistic(ctx, next) {
         await CourseChild.findAll({
             where: condition
         }).then((data) => {
-            if (data[0]) {
-                ctx.response.body = {
-                    code: '200',
-                    data: data
-                };
-            }
+            ctx.response.body = {
+                code: '200',
+                data: data
+            };
         }).catch((error) => {
             ctx.response.body = {
                 code: '404',
