@@ -97,6 +97,26 @@ async function searchCourse (ctx, next) {
     let momentTime = createTime.toLocaleTimeString();
 
     console.log('请求参数', postData); // 输出接收到的请假条信息
+    let userInfo = '';
+
+    // 查找该学生的课堂信息
+    await CourseChild.findAll({
+        where: {
+            course_id: postData.courseId,
+            userId: postData.stu_id
+        }
+    }).then((data) => {
+        if (data[0]) {
+            userInfo = data[0];
+        } else {
+            userInfo = { status: 0 }
+        }
+    }).catch((error) => {
+        ctx.response.body = {
+            code: '404',
+            msg: '错误原因：' + error
+        };
+    });
 
     // 编写查询语句
     await CourseParent.findAll({
@@ -108,10 +128,11 @@ async function searchCourse (ctx, next) {
             console.log('已经成功找到该课堂。');
             ctx.response.body = {
                 code: '200',
-                data: data[0]
+                data: data[0],
+                userInfo: userInfo
             };
         } else {
-            console.log('该用户不存在。');
+            console.log('该课堂不存在。');
             ctx.response.body = {
                 code: '404',
                 msg: '该课堂不存在！'
@@ -767,6 +788,13 @@ async function getCourseInfo(ctx, next) {
                 ctx.response.body = {
                     code: '200',
                     data: data
+                };
+            } else {
+                ctx.response.body = {
+                    code: '200',
+                    data: {
+                        status: 0
+                    }
                 };
             }
         }).catch((error) => {
