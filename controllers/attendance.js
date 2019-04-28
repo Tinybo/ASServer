@@ -54,7 +54,8 @@ async function createCourse (ctx, next) {
             phone: postData.phone,
             createTime: dateTime + ' ' + momentTime,
             address: postData.address,
-            isFinish: 0
+            isFinish: 0,
+            combine_string: ';'
         });
         
         if (result.dataValues) {
