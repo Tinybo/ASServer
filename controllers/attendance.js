@@ -349,13 +349,22 @@ async function getAllCourse (ctx, next) {
 
     console.log('请求参数', postData); // 输出接收到的请假条信息
 
+    let condition = '';
+    if (postData['isStatistic']) {
+        condition = {
+            college: postData['college']
+        }
+    } else {
+        condition = {
+            tea_id: postData['tea_id']
+        }
+    }
+
     // 编写查询语句
     try {
         // 根据教师ID查找所有课程
         await CourseParent.findAll({
-            where: {
-                tea_id: postData.tea_id
-            }
+            where: condition
         }).then((data) => {
             if (data[0]) {
                 console.log('已经成功找到所有课程。');
@@ -782,7 +791,6 @@ async function getCourseInfo(ctx, next) {
         await CourseChild.findAll({
             where: {
                 course_id: postData.course_id,
-                userId: postData.stu_id
             }
         }).then((data) => {
             if (data[0]) {

@@ -237,13 +237,22 @@ async function getAllLeave (ctx, next) {
         default: break;
     }
 
+    if (postData['userType'] == 'teacher') {
+        Query = TeacherLeave;
+    }
+
+    // 处理判断条件
+    let condition = postData['department'] ? {
+        college: postData['college'],
+        department: postData['department'],
+    } : {
+        college: postData['college']
+    }
+
     try {
         // 编写查询语句
         await Query.findAll({
-            where: {
-                college: postData['college'],
-                department: postData['department'],
-            }
+            where: condition
         }).then((data) => {
             if (data[0]) {
                 console.log('已经成功找到所有请假条。');
